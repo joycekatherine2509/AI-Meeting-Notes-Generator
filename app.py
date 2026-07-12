@@ -3,7 +3,6 @@ from transcriber import transcribe_audio
 from cleaner import clean_text, remove_duplicates
 from summarizer import summarize
 
-
 st.set_page_config(
     page_title="AI Meeting Notes Generator",
     page_icon="🤖",
@@ -15,58 +14,65 @@ st.markdown("""
 
 /* Main background */
 .stApp {
-    background-color: #0E1117;
+    background-color: #0B1120;
 }
 
-/* Hero section */
+/* Hero Banner */
 .hero {
-    background: linear-gradient(90deg, #0F172A, #1E3A8A);
-    padding: 40px;
-    border-radius: 20px;
+    background: linear-gradient(
+        135deg,
+        #0F172A,
+        #1E3A8A,
+        #2563EB
+    );
+    padding: 50px;
+    border-radius: 25px;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 35px;
 }
 
-.hero h1 {
+.hero-title {
     color: white;
-    font-size: 48px;
-    margin-bottom: 10px;
-}
-
-.hero p {
-    color: #D1D5DB;
-    font-size: 20px;
-}
-
-/* Upload card */
-.upload-card {
-    background-color: #1E293B;
-    padding: 25px;
-    border-radius: 20px;
-    border: 1px solid #334155;
-    margin-top: 20px;
-}
-
-/* Section headings */
-.section-title {
-    color: #38BDF8;
-    font-size: 28px;
+    font-size: 50px;
     font-weight: bold;
 }
 
-/* Download button */
+.hero-subtitle {
+    color: #D1D5DB;
+    font-size: 22px;
+    margin-top: 10px;
+}
+
+/* Section Titles */
+.section-title {
+    color: #38BDF8;
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 25px;
+}
+
+/* Download Button */
 .stDownloadButton button {
     width: 100%;
     background-color: #22C55E;
     color: white;
-    border-radius: 10px;
-    font-weight: bold;
+    border-radius: 12px;
     height: 3em;
+    font-weight: bold;
+    font-size: 18px;
 }
 
-/* Success message */
-.stAlert {
-    border-radius: 10px;
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background-color: #111827;
+}
+
+/* Upload Box */
+[data-testid="stFileUploader"] {
+    border: 2px dashed #38BDF8;
+    border-radius: 20px;
+    padding: 25px;
+    background-color: #111827;
 }
 
 </style>
@@ -76,40 +82,43 @@ with st.sidebar:
 
     st.title("🤖 About")
 
-    st.write(
-        """
-        Convert meeting recordings into structured notes
-        automatically using AI.
-        """
-    )
-
-    st.markdown("### 🚀 Features")
-
-    st.markdown("""
-    - 🎙 Upload Audio
-    - 📝 Speech-to-Text
-    - 🤖 AI Summarization
-    - 📋 Meeting Notes
-    - ⬇ Download Notes
-    """)
+    st.write("""
+This application converts meeting recordings into structured notes automatically using AI.
+""")
 
     st.markdown("---")
 
-    st.markdown("### 🛠 Tech Stack")
+    st.subheader("🚀 Features")
 
     st.markdown("""
-    - Python
-    - Streamlit
-    - Faster-Whisper
-    - Generative AI
-    """)
+- ☆ Audio Upload
+- ☆ Speech-to-Text
+- ☆ AI Summarization
+- ☆ Meeting Notes
+- ☆ Download Notes
+""")
+
+    st.markdown("---")
+
+    st.subheader("🛠 Tech Stack")
+
+    st.markdown("""
+- Python
+- Streamlit
+- Faster-Whisper
+- Generative AI
+- NLP
+""")
 
 st.markdown("""
 <div class="hero">
-    <h1>🤖 AI Meeting Notes Generator</h1>
-    <p>
+    <div class="hero-title">
+        🤖 AI Meeting Notes Generator
+    </div>
+
+    <div class="hero-subtitle">
         Upload → Transcribe → Summarize → Download
-    </p>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -131,22 +140,14 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-with st.container():
+st.write(
+    "Upload your meeting audio and let AI generate structured meeting notes automatically."
+)
 
-    st.markdown(
-        '<div class="upload-card">',
-        unsafe_allow_html=True
-    )
-
-    uploaded_file = st.file_uploader(
-        "Choose your audio file",
-        type=["wav", "mp3", "m4a"]
-    )
-
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
+uploaded_file = st.file_uploader(
+    "Choose your audio file",
+    type=["wav", "mp3", "m4a"]
+)
 
 if uploaded_file is not None:
 
@@ -170,9 +171,10 @@ if uploaded_file is not None:
         notes = summarize(cleaned_text)
         progress_bar.progress(100)
 
+    st.balloons()
+
     st.divider()
 
-   
     st.markdown(
         '<div class="section-title">📋 Generated Meeting Notes</div>',
         unsafe_allow_html=True
