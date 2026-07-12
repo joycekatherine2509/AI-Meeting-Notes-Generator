@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 from transcriber import transcribe_audio
 from cleaner import clean_text, remove_duplicates
 from summarizer import summarize
@@ -82,33 +83,36 @@ with st.sidebar:
 
     st.title("🤖 About")
 
-    st.write("""
-This application converts meeting recordings into structured notes automatically using AI.
-""")
+    st.write(
+        """
+        Convert meeting recordings into structured
+        meeting notes automatically using AI.
+        """
+    )
 
     st.markdown("---")
 
     st.subheader("🚀 Features")
 
     st.markdown("""
-- ☆ Audio Upload
-- ☆ Speech-to-Text
-- ☆ AI Summarization
-- ☆ Meeting Notes
-- ☆ Download Notes
-""")
+    - ★ Audio Upload
+    - ★ Speech-to-Text
+    - ★ AI Summarization
+    - ★ Meeting Notes
+    - ★ Download Notes
+    """)
 
     st.markdown("---")
 
     st.subheader("🛠 Tech Stack")
 
     st.markdown("""
-- Python
-- Streamlit
-- Faster-Whisper
-- Generative AI
-- NLP
-""")
+    - Python
+    - Streamlit
+    - Faster-Whisper
+    - Generative AI
+    - NLP
+    """)
 
 st.markdown("""
 <div class="hero">
@@ -151,6 +155,10 @@ uploaded_file = st.file_uploader(
 
 if uploaded_file is not None:
 
+    if uploaded_file.size == 0:
+        st.error("❌ Uploaded file is empty.")
+        st.stop()
+
     with open("meeting.wav", "wb") as f:
         f.write(uploaded_file.getbuffer())
 
@@ -158,21 +166,47 @@ if uploaded_file is not None:
 
     progress_bar = st.progress(0)
 
-    with st.spinner("🎙 Transcribing audio..."):
-        transcript = transcribe_audio("meeting.wav")
-        progress_bar.progress(35)
+    try:
+        with st.spinner("🎙 Transcribing audio..."):
+            transcript = transcribe_audio("meeting.wav")
+            progress_bar.progress(35)
 
-    with st.spinner("📝 Cleaning transcript..."):
-        cleaned_text = clean_text(transcript)
-        cleaned_text = remove_duplicates(cleaned_text)
-        progress_bar.progress(70)
+    except Exception as e:
+        st.error(f"❌ Error during transcription: {e}")
 
-    with st.spinner("🤖 Generating meeting notes..."):
-        notes = summarize(cleaned_text)
-        progress_bar.progress(100)
+        if os.path.exists("meeting.wav"):
+            os.remove("meeting.wav")
+
+        st.stop()
+
+    try:
+        with st.spinner("📝 Cleaning transcript..."):
+            cleaned_text = clean_text(transcript)
+            cleaned_text = remove_duplicates(cleaned_text)
+            progress_bar.progress(70)
+
+    except Exception as e:
+        st.error(f"❌ Error while cleaning transcript: {e}")
+
+        if os.path.exists("meeting.wav"):
+            os.remove("meeting.wav")
+
+        st.stop()
+
+    try:
+        with st.spinner("🤖 Generating meeting notes..."):
+            notes = summarize(cleaned_text)
+            progress_bar.progress(100)
+
+    except Exception as e:
+        st.error(f"❌ Error while generating meeting notes: {e}")
+
+        if os.path.exists("meeting.wav"):
+            os.remove("meeting.wav")
+
+        st.stop()
 
     st.balloons()
-
     st.divider()
 
     st.markdown(
@@ -198,3 +232,6 @@ if uploaded_file is not None:
         file_name="meeting_notes.md",
         mime="text/markdown"
     )
+
+    if os.path.exists("meeting.wav"):
+        os.remove("meeting.wav")
